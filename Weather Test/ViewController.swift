@@ -67,20 +67,26 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBAction func updateData() {
         DispatchQueue.global().async {
             let data = self.pullData()
-            DispatchQueue.main.async {
-                do {
-                    let dictionary = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves)
-                    let mainDict = (dictionary as AnyObject).object(forKey: "weather") as! [AnyObject]
-                    self.background = mainDict[0].object(forKey: "main") as! String
-                    
-                    let tempDict = (dictionary as AnyObject).object(forKey: "main")!
-                    self.tempCurrent = ((tempDict as AnyObject).value(forKey: "temp") as! CGFloat)
-                    self.tempHigh = ((tempDict as AnyObject).value(forKey: "temp_max") as! CGFloat)
-                    self.tempLow = ((tempDict as AnyObject).value(forKey: "temp_min") as! CGFloat)
-                    self.updateUI()
-                } catch {
-                    print("Could not parse JSON: \(error)")
+            if data != nil {
+                DispatchQueue.main.async {
+                    do {
+                        let dictionary = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves)
+                        let mainDict = (dictionary as AnyObject).object(forKey: "weather") as! [AnyObject]
+                        self.background = mainDict[0].object(forKey: "main") as! String
+                        
+                        let tempDict = (dictionary as AnyObject).object(forKey: "main")!
+                        self.tempCurrent = ((tempDict as AnyObject).value(forKey: "temp") as! CGFloat)
+                        self.tempHigh = ((tempDict as AnyObject).value(forKey: "temp_max") as! CGFloat)
+                        self.tempLow = ((tempDict as AnyObject).value(forKey: "temp_min") as! CGFloat)
+                        self.updateUI()
+                    } catch {
+                        print("Could not parse JSON: \(error)")
+                    }
                 }
+            } else {
+                let alert = UIAlertController(title: "Invalid Zip", message: "Uh Oh, that's an invalid zipcode! Please try again.", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Okay", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alert, animated: true, completion: {})
             }
         }
     }
